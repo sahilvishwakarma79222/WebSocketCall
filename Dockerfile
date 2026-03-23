@@ -1,26 +1,12 @@
-FROM eclipse-temurin:17-jdk-alpine
-
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
-
-# Copy Maven files
-COPY mvnw .
-COPY .mvn .mvn
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Make mvnw executable
-RUN chmod +x mvnw
-
-# Download dependencies
-RUN ./mvnw dependency:go-offline -B
-
-# Copy source code
-COPY src src
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Expose port
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Run the application (finds any jar in target folder)
-CMD ["sh", "-c", "java -jar target/*.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
