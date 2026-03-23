@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>JyoSah - Professional Video Calling</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(102,126,234,0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            flex: 1;
+            min-width: 280px;
+            padding: 20px;
+        }
+        
+        .hero-section h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+        
+        .hero-section .tagline {
+            font-size: 18px;
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+        
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #2d3748;
+        }
+        
+        .feature-item i {
+            width: 32px;
+            height: 32px;
+            background: #eef2ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 14px;
+        }
+        
+        .feature-item span {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        /* Form Card */
+        .form-card {
+            flex: 1;
+            min-width: 320px;
+            max-width: 440px;
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.15);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 60px;
+            margin-bottom: 32px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #64748b;
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        /* Forms */
+        .form-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .form-panel.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 16px;
+            pointer-events: none;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
+            transition: all 0.2s;
+            background: #fafcff;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Divider */
+        .divider {
+            text-align: center;
+            margin: 28px 0;
+            position: relative;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 40px);
+            height: 1px;
+            background: #e2e8f0;
+        }
+        
+        .divider::before {
+            left: 0;
+        }
+        
+        .divider::after {
+            right: 0;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 12px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #dc2626;
+        }
+        
+        .error-message i {
+            font-size: 16px;
+        }
+        
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #eef2ff;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                gap: 24px;
+            }
+            
+            .hero-section h1 {
+                font-size: 36px;
+                text-align: center;
+            }
+            
+            .hero-section .tagline {
+                text-align: center;
+                font-size: 16px;
+            }
+            
+            .features {
+                align-items: center;
+            }
+            
+            .feature-item {
+                width: fit-content;
+            }
+            
+            .form-card {
+                padding: 28px;
+            }
+            
+            .stats {
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 24px;
+            }
+            
+            .tab-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .hero-section h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>JyoSah</h1>
+            <p class="tagline">Connect with anyone, anywhere<br>with crystal clear video & audio</p>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <i class="fas fa-video"></i>
+                    <span>HD Video & Audio Calls</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-comments"></i>
+                    <span>Real-time Messaging</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-lock"></i>
+                    <span>Private & Secure Rooms</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-broom"></i>
+                    <span>Auto Cleanup - No Data Storage</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Card -->
+        <div class="form-card">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="create">Create Room</button>
+                <button class="tab-btn" data-tab="join">Join Room</button>
+            </div>
+            
+            <!-- Create Room Form -->
+            <div class="form-panel active" id="createPanel">
+                <form action="/create-room" method="post">
+                    <div class="form-group">
+                        <label class="input-label">Room Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="text" name="password" placeholder="Set a password for your room" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-plus-circle"></i>
+                        Create Room
+                    </button>
+                </form>
+                <div class="divider">
+                    <span>free & instant</span>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number">∞</div>
+                        <div class="stat-label">Unlimited Calls</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">HD</div>
+                        <div class="stat-label">Quality</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1hr</div>
+                        <div class="stat-label">Auto Cleanup</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Join Room Form -->
+            <div class="form-panel" id="joinPanel">
+                <form action="/join-room" method="post">
+                    <div class="form-group">
+                        <label class="input-label">Room ID</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-hashtag"></i>
+                            <input type="text" name="roomId" placeholder="Enter room ID" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-key"></i>
+                            <input type="text" name="password" placeholder="Room password" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="input-label">Your Name</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="username" placeholder="Enter your name" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-door-open"></i>
+                        Join Room
+                    </button>
+                </form>
+                <div class="divider">
+                    <span>secure & private</span>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number">🔒</div>
+                        <div class="stat-label">Password Protected</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">🎥</div>
+                        <div class="stat-label">WebRTC</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">💬</div>
+                        <div class="stat-label">Live Chat</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error Message (if any) -->
+            <div th:if="${error}" class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}"></span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab Switching
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('.form-panel');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update active panel
+                panels.forEach(panel => panel.classList.remove('active'));
+                if (target === 'create') {
+                    document.getElementById('createPanel').classList.add('active');
+                } else {
+                    document.getElementById('joinPanel').classList.add('active');
+                }
+            });
+        });
+        
+        // Smooth input focus effect
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.style.transform = 'scale(1.01)';
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>JyoSah - Professional Video Call</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Dark Theme - Professional */
+        body.dark-theme {
+            background: #1a1a2e;
+        }
+        
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header - Clean & Professional */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        
+        body.dark-theme .header {
+            background: #2d2d44;
+            border-color: rgba(255,255,255,0.05);
+            color: #e2e8f0;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+            letter-spacing: -0.3px;
+        }
+        
+        body.dark-theme .logo {
+            color: white;
+        }
+        
+        .logo i {
+            color: #667eea;
+            margin-right: 6px;
+        }
+        
+        .room-info {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .info-card {
+            background: #f8f9fc;
+            padding: 6px 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+        
+        body.dark-theme .info-card {
+            background: #1e1e2e;
+            border-color: #3d3d5c;
+            color: #a0aec0;
+        }
+        
+        .info-card i {
+            color: #667eea;
+            font-size: 12px;
+        }
+        
+        .info-card strong {
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+        
+        body.dark-theme .info-card strong {
+            color: white;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .theme-toggle, .end-call-btn {
+            background: #f8f9fc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: #4a5568;
+        }
+        
+        .theme-toggle:hover, .end-call-btn:hover {
+            background: #edf2f7;
+            transform: translateY(-1px);
+        }
+        
+        .end-call-btn {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+        
+        .end-call-btn:hover {
+            background: #fecaca;
+        }
+        
+        body.dark-theme .theme-toggle {
+            background: #1e1e2e;
+            border-color: #3d3d5c;
+            color: #a0aec0;
+        }
+        
+        body.dark-theme .end-call-btn {
+            background: #2d2d44;
+            border-color: #dc2626;
+            color: #f87171;
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: flex;
+            gap: 24px;
+            flex: 1;
+        }
+        
+        /* Video Sidebar - Clean Card */
+        .video-sidebar {
+            position: fixed;
+            left: 24px;
+            top: 100px;
+            width: 380px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            z-index: 100;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        body.dark-theme .video-sidebar {
+            background: #2d2d44;
+            border-color: rgba(255,255,255,0.05);
+        }
+        
+        .video-sidebar.minimized {
+            width: 70px;
+        }
+        
+        .video-header {
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        body.dark-theme .video-header {
+            border-bottom-color: #3d3d5c;
+        }
+        
+        .video-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin: 0;
+        }
+        
+        body.dark-theme .video-header h3 {
+            color: white;
+        }
+        
+        .video-header h3 i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+        
+        .minimize-video-btn {
+            background: transparent;
+            border: none;
+            color: #a0aec0;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .minimize-video-btn:hover {
+            background: #f7fafc;
+            color: #4a5568;
+        }
+        
+        body.dark-theme .minimize-video-btn:hover {
+            background: #3d3d5c;
+        }
+        
+        .video-content {
+            padding: 16px;
+        }
+        
+        .video-sidebar.minimized .video-content {
+            display: none;
+        }
+        
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .video-wrapper {
+            position: relative;
+            background: #f8f9fc;
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+        
+        body.dark-theme .video-wrapper {
+            background: #1e1e2e;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        
+        /* Round Control Buttons */
+        .video-controls {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .round-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: white;
+        }
+        
+        .round-btn:hover {
+            transform: scale(1.05);
+            background: rgba(0,0,0,0.8);
+        }
+        
+        .round-btn.active {
+            background: #ef4444;
+        }
+        
+        body.dark-theme .round-btn.active {
+            background: #9f7aea;
+        }
+        
+        /* Chat Section - Clean Card */
+        .chat-section {
+            flex: 1;
+            margin-left: 420px;
+            background: white;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 140px);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .video-sidebar.minimized + .chat-section {
+            margin-left: 110px;
+        }
+        
+        body.dark-theme .chat-section {
+            background: #2d2d44;
+            border-color: rgba(255,255,255,0.05);
+        }
+        
+        .chat-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        body.dark-theme .chat-header {
+            border-bottom-color: #3d3d5c;
+        }
+        
+        .chat-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        body.dark-theme .chat-header h3 {
+            color: white;
+        }
+        
+        .chat-header h3 i {
+            color: #667eea;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        /* WhatsApp Style Messages */
+        .message {
+            max-width: 75%;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        .message-own {
+            align-self: flex-end;
+        }
+        
+        .message-other {
+            align-self: flex-start;
+        }
+        
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 18px;
+            position: relative;
+        }
+        
+        .message-own .message-bubble {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        body.dark-theme .message-own .message-bubble {
+            background: #7c3aed;
+        }
+        
+        .message-other .message-bubble {
+            background: #f1f5f9;
+            color: #1a1a2e;
+            border-bottom-left-radius: 4px;
+        }
+        
+        body.dark-theme .message-other .message-bubble {
+            background: #1e1e2e;
+            color: #e2e8f0;
+        }
+        
+        .message-sender {
+            font-size: 11px;
+            margin-bottom: 4px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .message-own .message-sender {
+            justify-content: flex-end;
+        }
+        
+        .message-content {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .message-time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .message-own .message-time {
+            justify-content: flex-end;
+        }
+        
+        .message-system {
+            align-self: center;
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #64748b;
+            max-width: 85%;
+        }
+        
+        body.dark-theme .message-system {
+            background: #1e1e2e;
+            color: #94a3b8;
+        }
+        
+        .chat-input {
+            padding: 16px 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 12px;
+        }
+        
+        body.dark-theme .chat-input {
+            border-top-color: #3d3d5c;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+        
+        body.dark-theme .chat-input input {
+            background: #1e1e2e;
+            border-color: #3d3d5c;
+            color: white;
+        }
+        
+        .chat-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        .chat-input button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .chat-input button:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            z-index: 999;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        body.dark-theme .connection-status {
+            background: #2d2d44;
+            color: white;
+        }
+        
+        .status-connected {
+            color: #10b981;
+        }
+        
+        .status-connecting {
+            color: #f59e0b;
+        }
+        
+        .status-disconnected {
+            color: #ef4444;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        body.dark-theme ::-webkit-scrollbar-track {
+            background: #1e1e2e;
+        }
+        
+        body.dark-theme ::-webkit-scrollbar-thumb {
+            background: #3d3d5c;
+        }
+        
+        /* ========== MOBILE RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 12px;
+            }
+            
+            .header {
+                padding: 12px 16px;
+                border-radius: 16px;
+            }
+            
+            .logo {
+                font-size: 16px;
+            }
+            
+            .room-info {
+                gap: 8px;
+            }
+            
+            .info-card {
+                padding: 4px 10px;
+                font-size: 11px;
+            }
+            
+            .theme-toggle span, .end-call-btn span {
+                display: none;
+            }
+            
+            .theme-toggle, .end-call-btn {
+                padding: 8px 12px;
+            }
+            
+            /* Mobile Floating Video */
+            .video-sidebar {
+                position: fixed;
+                left: auto;
+                right: 12px;
+                top: auto;
+                bottom: 90px;
+                width: 130px;
+                height: 170px;
+                border-radius: 20px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                cursor: pointer;
+            }
+            
+            .video-sidebar.minimized {
+                width: 55px;
+                height: 70px;
+                bottom: 90px;
+            }
+            
+            .video-header {
+                padding: 8px 12px;
+            }
+            
+            .video-header h3 {
+                font-size: 11px;
+            }
+            
+            .video-header h3 span {
+                display: none;
+            }
+            
+            .minimize-video-btn {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .video-content {
+                padding: 8px;
+            }
+            
+            .video-wrapper {
+                aspect-ratio: 4/3;
+            }
+            
+            .video-label {
+                font-size: 9px;
+                padding: 3px 8px;
+            }
+            
+            .video-controls {
+                bottom: 8px;
+                right: 8px;
+                gap: 5px;
+            }
+            
+            .round-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            
+            /* Mobile Chat */
+            .chat-section {
+                margin-left: 0 !important;
+                height: calc(100vh - 130px);
+                border-radius: 20px;
+            }
+            
+            .chat-header {
+                padding: 14px 18px;
+            }
+            
+            .chat-messages {
+                padding: 14px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .message-bubble {
+                padding: 8px 12px;
+            }
+            
+            .message-content {
+                font-size: 13px;
+            }
+            
+            .chat-input {
+                padding: 12px 16px;
+            }
+            
+            .chat-input input {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            
+            .chat-input button {
+                padding: 10px 18px;
+                font-size: 13px;
+            }
+            
+            .connection-status {
+                bottom: 12px;
+                right: 12px;
+                font-size: 10px;
+                padding: 5px 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .video-sidebar {
+                width: 110px;
+                height: 145px;
+                bottom: 80px;
+            }
+            
+            .video-sidebar.minimized {
+                width: 50px;
+                height: 65px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header - Clean & Professional -->
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo">
+                    <i class="fas fa-video"></i> JyoSah
+                </div>
+                <div class="room-info">
+                    <div class="info-card">
+                        <i class="fas fa-hashtag"></i>
+                        <strong th:text="${roomId}"></strong>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-user"></i>
+                        <strong th:text="${username}"></strong>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-users"></i>
+                        <span id="userCount">1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark</span>
+                </button>
+                <button class="end-call-btn" onclick="endCall()">
+                    <i class="fas fa-phone-slash"></i>
+                    <span>End</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Video Sidebar -->
+            <div class="video-sidebar" id="videoSidebar">
+                <div class="video-header" onclick="toggleVideoSidebar()">
+                    <h3>
+                        <i class="fas fa-video"></i>
+                        <span id="videoHeaderText">Video Call</span>
+                    </h3>
+                    <button class="minimize-video-btn" onclick="event.stopPropagation(); toggleVideoSidebar()">
+                        <i class="fas fa-chevron-left" id="minimizeIcon"></i>
+                    </button>
+                </div>
+                <div class="video-content">
+                    <div class="video-container">
+                        <div class="video-wrapper">
+                            <video id="localVideo" autoplay muted playsinline></video>
+                            <div class="video-label">
+                                <i class="fas fa-user"></i>
+                                <span>You</span>
+                            </div>
+                            <div class="video-controls">
+                                <button class="round-btn" id="roundAudioBtn" onclick="toggleAudio()">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button class="round-btn" id="roundVideoBtn" onclick="toggleVideo()">
+                                    <i class="fas fa-video"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="video-wrapper" id="remoteVideoWrapper">
+                            <video id="remoteVideo" autoplay playsinline></video>
+                            <div class="video-label" id="remoteLabel">
+                                <i class="fas fa-user"></i>
+                                <span>Remote</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h3>
+                        <i class="fas fa-comments"></i>
+                        Live Chat
+                    </h3>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message message-system">
+                        <i class="fas fa-info-circle"></i> Welcome to JyoSah
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="connection-status" id="connectionStatus">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <span>Connecting...</span>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const roomId = /*[[${roomId}]]*/ 'default';
+        const username = /*[[${username}]]*/ 'Anonymous';
+        /*]]>*/
+        
+        let localStream;
+        let peer;
+        let currentCall;
+        let stompClient;
+        let myPeerId = null;
+        let connectedUsers = new Map();
+        let isMobile = window.innerWidth <= 768;
+        
+        window.addEventListener('resize', () => {
+            isMobile = window.innerWidth <= 768;
+        });
+        
+        function toggleVideoSidebar() {
+            const sidebar = document.getElementById('videoSidebar');
+            const icon = document.getElementById('minimizeIcon');
+            const headerText = document.getElementById('videoHeaderText');
+            
+            sidebar.classList.toggle('minimized');
+            
+            if (sidebar.classList.contains('minimized')) {
+                icon.className = 'fas fa-chevron-right';
+                headerText.textContent = '';
+                if (isMobile) {
+                    document.getElementById('remoteVideoWrapper').style.display = 'none';
+                }
+            } else {
+                icon.className = 'fas fa-chevron-left';
+                headerText.textContent = isMobile ? 'Video' : 'Video Call';
+                if (isMobile) {
+                    document.getElementById('remoteVideoWrapper').style.display = 'block';
+                }
+            }
+        }
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const themeBtn = document.querySelector('.theme-toggle');
+            const isDark = document.body.classList.contains('dark-theme');
+            themeBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i><span>Light</span>' : '<i class="fas fa-moon"></i><span>Dark</span>';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+        
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+            document.querySelector('.theme-toggle').innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+        }
+        
+        function updateUserCount() {
+            document.getElementById('userCount').textContent = connectedUsers.size + 1;
+        }
+        
+        function updateStatus(status, type) {
+            const div = document.getElementById('connectionStatus');
+            div.innerHTML = `<i class="fas ${type === 'connected' ? 'fa-check-circle' : type === 'connecting' ? 'fa-circle-notch fa-spin' : 'fa-exclamation-circle'}"></i><span>${status}</span>`;
+            div.className = `connection-status status-${type}`;
+        }
+        
+        function connectWebSocket() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, () => {
+                updateStatus('Connected', 'connected');
+                stompClient.subscribe('/topic/room/' + roomId, (msg) => handleSignaling(JSON.parse(msg.body)));
+                stompClient.send("/app/join", {}, JSON.stringify({ roomId, username, type: 'join' }));
+                addSystemMessage('Connected');
+                updateUserCount();
+            }, () => updateStatus('Disconnected', 'disconnected'));
+        }
+        
+        function initPeer() {
+            peer = new Peer();
+            peer.on('open', (id) => {
+                myPeerId = id;
+                updateStatus('Ready', 'connected');
+                setTimeout(() => stompClient?.send("/app/peer-id", {}, JSON.stringify({ roomId, peerId: id, username, type: 'peer-id' })), 1000);
+            });
+            peer.on('call', (call) => {
+                if (localStream) {
+                    call.answer(localStream);
+                    call.on('stream', (stream) => {
+                        document.getElementById('remoteVideo').srcObject = stream;
+                        addSystemMessage('Video call connected');
+                    });
+                    call.on('close', () => {
+                        document.getElementById('remoteVideo').srcObject = null;
+                        currentCall = null;
+                    });
+                    currentCall = call;
+                }
+            });
+        }
+        
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then((stream) => {
+                localStream = stream;
+                document.getElementById('localVideo').srcObject = stream;
+            })
+            .catch(() => addSystemMessage('⚠️ Camera/mic access denied'));
+        
+        function handleSignaling(data) {
+            if (data.type === 'chat' && data.username !== username) {
+                displayMessage(data.username, data.content, false);
+            } else if (data.type === 'peer-id' && data.peerId && data.peerId !== myPeerId && localStream && !currentCall) {
+                connectedUsers.set(data.peerId, data.username);
+                updateUserCount();
+                const call = peer.call(data.peerId, localStream);
+                call.on('stream', (stream) => {
+                    document.getElementById('remoteVideo').srcObject = stream;
+                    document.getElementById('remoteLabel').innerHTML = `<i class="fas fa-user"></i><span>${data.username || 'Remote'}</span>`;
+                    addSystemMessage(`Connected to ${data.username || 'remote'}`);
+                });
+                call.on('close', () => {
+                    document.getElementById('remoteVideo').srcObject = null;
+                    currentCall = null;
+                    connectedUsers.delete(data.peerId);
+                    updateUserCount();
+                });
+                currentCall = call;
+            } else if (data.type === 'join') {
+                addSystemMessage(`${data.username} joined`);
+                updateUserCount();
+            } else if (data.type === 'leave') {
+                addSystemMessage(`${data.username} left`);
+                if (currentCall) currentCall.close();
+                updateUserCount();
+            }
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            if (content && stompClient?.connected) {
+                stompClient.send("/app/chat", {}, JSON.stringify({ roomId, username, content, type: 'chat' }));
+                displayMessage(username, content, true);
+                input.value = '';
+            }
+        }
+        
+        function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+        
+        function formatTime() {
+            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function displayMessage(sender, content, isOwn) {
+            const chatDiv = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isOwn ? 'message-own' : 'message-other'}`;
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            if (!isOwn) bubble.innerHTML += `<div class="message-sender"><i class="fas fa-user-circle"></i> ${sender}</div>`;
+            bubble.innerHTML += `<div class="message-content">${content}</div>`;
+            bubble.innerHTML += `<div class="message-time"><i class="fas fa-clock"></i> ${formatTime()}</div>`;
+            msgDiv.appendChild(bubble);
+            chatDiv.appendChild(msgDiv);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+        
+        function addSystemMessage(content) {
+            const chatDiv = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message message-system';
+            msgDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${content}`;
+            chatDiv.appendChild(msgDiv);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+        
+        function toggleAudio() {
+            const track = localStream?.getAudioTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                const btn = document.getElementById('roundAudioBtn');
+                btn.innerHTML = track.enabled ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone-slash"></i>';
+                btn.classList.toggle('active', !track.enabled);
+            }
+        }
+        
+        function toggleVideo() {
+            const track = localStream?.getVideoTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                const btn = document.getElementById('roundVideoBtn');
+                btn.innerHTML = track.enabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
+                btn.classList.toggle('active', !track.enabled);
+            }
+        }
+        
+        function endCall() {
+            currentCall?.close();
+            localStream?.getTracks().forEach(t => t.stop());
+            stompClient?.send("/app/leave", {}, JSON.stringify({ roomId, username, type: 'leave' }));
+            setTimeout(() => stompClient?.disconnect(), 100);
+            peer?.destroy();
+            window.location.href = '/';
+        }
+        
+        window.onload = () => { connectWebSocket(); setTimeout(initPeer, 1000); };
+    </script>
+</body>
+</html>
