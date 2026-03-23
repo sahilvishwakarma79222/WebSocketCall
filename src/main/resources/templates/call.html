@@ -22,7 +22,6 @@
             overflow-x: hidden;
         }
         
-        /* Dark Theme - Professional */
         body.dark-theme {
             background: #1a1a2e;
         }
@@ -36,7 +35,6 @@
             flex-direction: column;
         }
         
-        /* Header - Clean & Professional */
         .header {
             background: white;
             border-radius: 20px;
@@ -122,7 +120,7 @@
             gap: 12px;
         }
         
-        .theme-toggle, .end-call-btn {
+        .theme-toggle, .end-call-btn, .note-btn {
             background: #f8f9fc;
             border: 1px solid #e2e8f0;
             padding: 8px 18px;
@@ -135,6 +133,17 @@
             font-weight: 500;
             transition: all 0.2s;
             color: #4a5568;
+        }
+        
+        .note-btn {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+            color: #667eea;
+        }
+        
+        .note-btn:hover {
+            background: #e0e7ff;
+            transform: translateY(-1px);
         }
         
         .theme-toggle:hover, .end-call-btn:hover {
@@ -158,6 +167,12 @@
             color: #a0aec0;
         }
         
+        body.dark-theme .note-btn {
+            background: #2d2d44;
+            border-color: #9f7aea;
+            color: #9f7aea;
+        }
+        
         body.dark-theme .end-call-btn {
             background: #2d2d44;
             border-color: #dc2626;
@@ -171,7 +186,7 @@
             flex: 1;
         }
         
-        /* Video Sidebar - Clean Card */
+        /* Video Sidebar */
         .video-sidebar {
             position: fixed;
             left: 24px;
@@ -292,7 +307,6 @@
             font-weight: 500;
         }
         
-        /* Round Control Buttons */
         .video-controls {
             position: absolute;
             bottom: 12px;
@@ -331,7 +345,7 @@
             background: #9f7aea;
         }
         
-        /* Chat Section - Clean Card */
+        /* Chat Section */
         .chat-section {
             flex: 1;
             margin-left: 420px;
@@ -345,7 +359,7 @@
             border: 1px solid rgba(0,0,0,0.05);
         }
         
-        .video-sidebar.minimized + .chat-section {
+        .video-sidebar.minimized + .main-content .chat-section {
             margin-left: 110px;
         }
         
@@ -389,7 +403,6 @@
             gap: 12px;
         }
         
-        /* WhatsApp Style Messages */
         .message {
             max-width: 75%;
             animation: fadeIn 0.2s ease;
@@ -526,7 +539,6 @@
             transform: translateY(-1px);
         }
         
-        /* Connection Status */
         .connection-status {
             position: fixed;
             bottom: 20px;
@@ -571,7 +583,6 @@
             }
         }
         
-        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -598,7 +609,188 @@
             background: #3d3d5c;
         }
         
-        /* ========== MOBILE RESPONSIVE ========== */
+        /* ========== NOTE MODAL STYLES ========== */
+        .note-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .note-modal.show {
+            display: flex;
+        }
+        
+        .note-modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.2s ease;
+        }
+        
+        body.dark-theme .note-modal-content {
+            background: #2d2d44;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .note-modal-header {
+            padding: 18px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        body.dark-theme .note-modal-header {
+            background: linear-gradient(135deg, #6b46c0, #805ad5);
+        }
+        
+        .note-modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+        
+        .close-modal {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .close-modal:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        
+        .note-modal-body {
+            padding: 20px;
+        }
+        
+        .note-info {
+            background: #f8f9fc;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        body.dark-theme .note-info {
+            background: #1e1e2e;
+            color: #94a3b8;
+        }
+        
+        .note-info i {
+            color: #667eea;
+        }
+        
+        .note-textarea-modal {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            background: white;
+        }
+        
+        body.dark-theme .note-textarea-modal {
+            background: #1e1e2e;
+            border-color: #3d3d5c;
+            color: white;
+        }
+        
+        .note-textarea-modal:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        .note-modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        body.dark-theme .note-modal-footer {
+            border-top-color: #3d3d5c;
+        }
+        
+        .modal-save-btn {
+            padding: 10px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .modal-save-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        .modal-cancel-btn {
+            padding: 10px 24px;
+            background: #f1f5f9;
+            color: #64748b;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .modal-cancel-btn:hover {
+            background: #e2e8f0;
+        }
+        
+        body.dark-theme .modal-cancel-btn {
+            background: #3d3d5c;
+            color: #a0aec0;
+        }
+        
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .app-container {
                 padding: 12px;
@@ -606,7 +798,7 @@
             
             .header {
                 padding: 12px 16px;
-                border-radius: 16px;
+                margin-bottom: 16px;
             }
             
             .logo {
@@ -622,15 +814,14 @@
                 font-size: 11px;
             }
             
-            .theme-toggle span, .end-call-btn span {
+            .theme-toggle span, .end-call-btn span, .note-btn span {
                 display: none;
             }
             
-            .theme-toggle, .end-call-btn {
+            .theme-toggle, .end-call-btn, .note-btn {
                 padding: 8px 12px;
             }
             
-            /* Mobile Floating Video */
             .video-sidebar {
                 position: fixed;
                 left: auto;
@@ -692,7 +883,6 @@
                 font-size: 12px;
             }
             
-            /* Mobile Chat */
             .chat-section {
                 margin-left: 0 !important;
                 height: calc(100vh - 130px);
@@ -739,25 +929,33 @@
                 font-size: 10px;
                 padding: 5px 12px;
             }
-        }
-        
-        @media (max-width: 480px) {
-            .video-sidebar {
-                width: 110px;
-                height: 145px;
-                bottom: 80px;
+            
+            .note-modal-content {
+                width: 95%;
+                max-height: 85vh;
             }
             
-            .video-sidebar.minimized {
-                width: 50px;
-                height: 65px;
+            .note-modal-header {
+                padding: 14px 16px;
+            }
+            
+            .note-modal-header h3 {
+                font-size: 16px;
+            }
+            
+            .note-modal-body {
+                padding: 16px;
+            }
+            
+            .note-textarea-modal {
+                font-size: 13px;
             }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Header - Clean & Professional -->
+        <!-- Header -->
         <div class="header">
             <div class="logo-section">
                 <div class="logo">
@@ -779,6 +977,10 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button class="note-btn" onclick="openNoteModal()">
+                    <i class="fas fa-sticky-note"></i>
+                    <span>Note</span>
+                </button>
                 <button class="theme-toggle" onclick="toggleTheme()">
                     <i class="fas fa-moon"></i>
                     <span>Dark</span>
@@ -855,6 +1057,32 @@
         </div>
     </div>
     
+    <!-- NOTE MODAL POPUP -->
+    <div id="noteModal" class="note-modal">
+        <div class="note-modal-content">
+            <div class="note-modal-header">
+                <h3>
+                    <i class="fas fa-sticky-note"></i>
+                    Room Note
+                </h3>
+                <button class="close-modal" onclick="closeNoteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="note-modal-body">
+                <div class="note-info" id="noteInfo">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="noteMetaText">Loading...</span>
+                </div>
+                <textarea id="noteTextareaModal" class="note-textarea-modal" rows="6" placeholder="Write your note here..."></textarea>
+            </div>
+            <div class="note-modal-footer">
+                <button class="modal-cancel-btn" onclick="closeNoteModal()">Cancel</button>
+                <button class="modal-save-btn" onclick="saveNoteFromModal()">Save Note</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="connection-status" id="connectionStatus">
         <i class="fas fa-circle-notch fa-spin"></i>
         <span>Connecting...</span>
@@ -873,6 +1101,7 @@
         let myPeerId = null;
         let connectedUsers = new Map();
         let isMobile = window.innerWidth <= 768;
+        let currentNoteContent = "";
         
         window.addEventListener('resize', () => {
             isMobile = window.innerWidth <= 768;
@@ -1063,6 +1292,64 @@
         }
         
         window.onload = () => { connectWebSocket(); setTimeout(initPeer, 1000); };
+        
+        // ========== NOTE MODAL FUNCTIONS ==========
+        function openNoteModal() {
+            const modal = document.getElementById('noteModal');
+            modal.classList.add('show');
+            loadNoteToModal();
+        }
+        
+        function closeNoteModal() {
+            const modal = document.getElementById('noteModal');
+            modal.classList.remove('show');
+        }
+        
+        function loadNoteToModal() {
+            fetch('/secret/note/get')
+                .then(res => res.json())
+                .then(data => {
+                    currentNoteContent = data.content;
+                    document.getElementById('noteTextareaModal').value = data.content;
+                    const date = new Date(data.lastEditedAt);
+                    document.getElementById('noteMetaText').innerHTML = `Last edited by ${data.lastEditedBy} on ${date.toLocaleString()}`;
+                })
+                .catch(err => console.error('Error loading note:', err));
+        }
+        
+        function saveNoteFromModal() {
+            const newContent = document.getElementById('noteTextareaModal').value;
+            fetch(`/secret/note/update?content=${encodeURIComponent(newContent)}&editedBy=${username}`, {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    currentNoteContent = data.content;
+                    const date = new Date(data.lastEditedAt);
+                    document.getElementById('noteMetaText').innerHTML = `Last edited by ${data.lastEditedBy} on ${date.toLocaleString()}`;
+                    addSystemMessage('✅ Note saved successfully!');
+                    setTimeout(() => closeNoteModal(), 500);
+                }
+            })
+            .catch(err => console.error('Error saving note:', err));
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('noteModal');
+            const modalContent = modal.querySelector('.note-modal-content');
+            if (event.target === modal) {
+                closeNoteModal();
+            }
+        });
+        
+        // ESC key to close modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeNoteModal();
+            }
+        });
     </script>
 </body>
 </html>
