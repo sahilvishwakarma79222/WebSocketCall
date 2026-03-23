@@ -1,12 +1,28 @@
-# Step 1: Build stage
-FROM maven:3.8.5-openjdk-17 AS build
-WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests
+# Use Java 17
+FROM openjdk:17-jdk-slim
 
-# Step 2: Run stage
-FROM eclipse-temurin:17-jre-alpine
+# Set working directory
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+# Copy maven wrapper files
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+
+# Make mvnw executable
+RUN chmod +x mvnw
+
+# Download dependencies (caching layer)
+RUN ./mvnw dependency:go-offline -B
+
+# Copy source code
+COPY src src
+
+# Build the application
+RUN ./mvnw clean package -DskipTests
+
+# Expose port
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]
+
+# Run the application
+CMD ["java", "-jar", "target/video-call-app-1.0.0.jar"]

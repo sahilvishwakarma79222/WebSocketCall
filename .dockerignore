@@ -1,7 +1,54 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Build
 target/
-bin/
-.settings/
-.project
-.classpath
-.git/
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
 *.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Documentation
+README.md
+LICENSE
+*.md
+
+# Temp
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Node (if any)
+node_modules/
+npm-debug.log
+
+# Environment
+.env
+.env.local
